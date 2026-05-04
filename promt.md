@@ -44,6 +44,3 @@ Mavzu: "Sentinel-OWASP" — minimalist va yuqori samaradorlikka ega Django backe
 - Query optimization: SQLite uchun ortiqcha optimizatsiya qilinmasin; JSONField o'qishda Python `dict` metodlaridan samarali foydalanilsin.
 
 
-https://github.com/shamshodbekdevops/Sentinel_OWASP.git
-
-endi shu reposotiryga hammasini push qilib ber, hamma bajargan ishlaringni alohida commit qilib ber, english tilida commit qil, har bir bajargan ishini commit qil 20 dan ziyod commit qil.
