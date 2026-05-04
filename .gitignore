@@ -1,16 +1,43 @@
-# Python
+# Python / Django
 __pycache__/
+*.py[cod]
 *.pyc
+*.pyo
+*.pyd
+*.so
+.Python
+*.log
+db.sqlite3
+db.sqlite3-journal
+backend/db.sqlite3
 backend/**/__pycache__/
 backend/**/*.pyc
-
-# Django / local runtime
-backend/db.sqlite3
+backend/**/.pytest_cache/
 
 # Frontend dependencies and build output
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
 
-# Local helper scripts
+# Local helper scripts and environments
 .commit_batch.ps1
+.env
+.envrc
+.venv/
+env/
+venv/
+ENV/
+
+# Common tooling caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+.tox/
+.nox/
+
+# Editor/project noise
+.idea/
+.vscode/
+.ipynb_checkpoints/
