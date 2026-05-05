@@ -1,7 +1,17 @@
 import { motion } from 'motion/react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-const data = [
+type ComplianceItem = {
+  name: string;
+  compliance: number;
+  color: string;
+};
+
+interface ComplianceBarChartProps {
+  data?: ComplianceItem[];
+}
+
+const defaultData: ComplianceItem[] = [
   { name: 'Injection', compliance: 85, color: '#22c55e' },
   { name: 'Auth', compliance: 92, color: '#22c55e' },
   { name: 'Exposure', compliance: 78, color: '#eab308' },
@@ -14,7 +24,7 @@ const data = [
   { name: 'Logging', compliance: 80, color: '#22c55e' },
 ];
 
-export function ComplianceBarChart() {
+export function ComplianceBarChart({ data = defaultData }: ComplianceBarChartProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

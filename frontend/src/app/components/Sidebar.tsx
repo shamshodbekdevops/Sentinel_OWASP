@@ -5,10 +5,10 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', active: true },
+    { icon: LayoutDashboard, label: 'Bosh sahifa', active: true },
     { icon: ScanSearch, label: 'Scan', active: false },
-    { icon: FileText, label: 'Reports', active: false },
-    { icon: Settings, label: 'Settings', active: false },
+    { icon: FileText, label: 'Hisobotlar', active: false },
+    { icon: Settings, label: 'Sozlamalar', active: false },
   ];
 
   return (

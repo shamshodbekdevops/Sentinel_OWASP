@@ -41,7 +41,7 @@ export function ResultsTable() {
       <div className="p-6 border-b border-white/10">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-5 h-5 text-[#eab308]" />
-          <h3 className="text-white">Recent Vulnerabilities</h3>
+          <h3 className="text-white">So‘nggi zaifliklar</h3>
         </div>
       </div>
 
@@ -50,10 +50,10 @@ export function ResultsTable() {
           <thead>
             <tr className="border-b border-white/10">
               <th className="px-6 py-4 text-left text-sm text-gray-400">ID</th>
-              <th className="px-6 py-4 text-left text-sm text-gray-400">Vulnerability</th>
-              <th className="px-6 py-4 text-left text-sm text-gray-400">Location</th>
-              <th className="px-6 py-4 text-left text-sm text-gray-400">Severity</th>
-              <th className="px-6 py-4 text-left text-sm text-gray-400">Status</th>
+              <th className="px-6 py-4 text-left text-sm text-gray-400">Zaiflik</th>
+              <th className="px-6 py-4 text-left text-sm text-gray-400">Manzil</th>
+              <th className="px-6 py-4 text-left text-sm text-gray-400">Jiddiylik</th>
+              <th className="px-6 py-4 text-left text-sm text-gray-400">Holat</th>
             </tr>
           </thead>
           <tbody>
@@ -84,7 +84,9 @@ export function ResultsTable() {
                     {result.severity}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-gray-400">{result.status}</td>
+                <td className="px-6 py-4 text-gray-400">
+                  {result.status === 'Active' ? 'Faol' : result.status === 'Pending' ? 'Kutilmoqda' : 'Yechilgan'}
+                </td>
               </motion.tr>
             ))}
           </tbody>

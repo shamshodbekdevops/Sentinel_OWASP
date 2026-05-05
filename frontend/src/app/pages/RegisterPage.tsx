@@ -19,7 +19,7 @@ export function RegisterPage() {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError('Parollar mos emas');
       return;
     }
 
@@ -29,7 +29,7 @@ export function RegisterPage() {
       await register(name, email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed.');
+      setError(err instanceof Error ? err.message : 'Ro‘yxatdan o‘tish amalga oshmadi.');
     } finally {
       setSubmitting(false);
     }
@@ -60,13 +60,13 @@ export function RegisterPage() {
           >
             <Shield className="w-12 h-12 text-[#22c55e]" />
           </div>
-          <h2 className="text-2xl text-white mb-2">Create Account</h2>
-          <p className="text-gray-400 text-sm">Join Sentinel-OWASP Platform</p>
+          <h2 className="text-2xl text-white mb-2">Hisob yaratish</h2>
+          <p className="text-gray-400 text-sm">Sentinel-OWASP platformasiga qo‘shiling</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <label className="text-gray-300 text-sm">Full Name</label>
+            <label className="text-gray-300 text-sm">To‘liq ism</label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
@@ -90,7 +90,7 @@ export function RegisterPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-gray-300 text-sm">Email Address</label>
+            <label className="text-gray-300 text-sm">Email manzil</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
@@ -114,7 +114,7 @@ export function RegisterPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-gray-300 text-sm">Password</label>
+            <label className="text-gray-300 text-sm">Parol</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
@@ -138,7 +138,7 @@ export function RegisterPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-gray-300 text-sm">Confirm Password</label>
+            <label className="text-gray-300 text-sm">Parolni tasdiqlang</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
@@ -175,19 +175,19 @@ export function RegisterPage() {
             }}
             whileTap={{ scale: 0.98 }}
           >
-            {submitting ? 'Creating...' : 'Create Account'}
+            {submitting ? 'Yaratilmoqda...' : 'Hisob yaratish'}
           </motion.button>
 
           {error && <p className="text-sm text-red-400">{error}</p>}
 
           <div className="text-center text-sm text-gray-400">
-            Already have an account?{' '}
+            Allaqachon hisobingiz bormi?{' '}
             <Link
               to="/auth/login"
               className="text-[#3b82f6] hover:text-[#60a5fa] transition-colors"
               style={{ textShadow: '0 0 10px rgba(59, 130, 246, 0.3)' }}
             >
-              Sign In
+              Kirish
             </Link>
           </div>
         </form>

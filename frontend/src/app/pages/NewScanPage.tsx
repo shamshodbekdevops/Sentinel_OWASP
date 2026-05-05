@@ -11,25 +11,25 @@ interface LogEntry {
 }
 
 const scanLogs = [
-  { type: 'info' as const, message: '[INFO] Initializing security scan...' },
-  { type: 'info' as const, message: '[INFO] Resolving target domain...' },
-  { type: 'success' as const, message: '[SUCCESS] Target resolved: 192.168.1.100' },
-  { type: 'info' as const, message: '[SCAN] Testing SQL Injection vulnerabilities...' },
-  { type: 'warning' as const, message: '[WARNING] Potential SQL injection found in /api/users' },
-  { type: 'info' as const, message: '[SCAN] Testing XSS vulnerabilities...' },
-  { type: 'error' as const, message: '[CRITICAL] XSS vulnerability detected in /search' },
-  { type: 'info' as const, message: '[SCAN] Checking CSRF protection...' },
-  { type: 'warning' as const, message: '[WARNING] Missing CSRF token in /login' },
-  { type: 'info' as const, message: '[SCAN] Analyzing security headers...' },
-  { type: 'success' as const, message: '[SUCCESS] Content-Security-Policy header present' },
-  { type: 'warning' as const, message: '[WARNING] X-Frame-Options header missing' },
-  { type: 'info' as const, message: '[SCAN] Testing authentication mechanisms...' },
-  { type: 'info' as const, message: '[SCAN] Checking for outdated dependencies...' },
-  { type: 'error' as const, message: '[CRITICAL] Vulnerable package detected: express@3.x' },
-  { type: 'info' as const, message: '[SCAN] Analyzing API endpoints...' },
-  { type: 'success' as const, message: '[SUCCESS] All endpoints use HTTPS' },
-  { type: 'info' as const, message: '[SCAN] Generating security report...' },
-  { type: 'success' as const, message: '[COMPLETE] Scan finished. Found 3 critical, 4 high, 6 medium issues.' },
+  { type: 'info' as const, message: '[INFO] Xavfsizlik scani boshlandi...' },
+  { type: 'info' as const, message: '[INFO] Target domen aniqlanmoqda...' },
+  { type: 'success' as const, message: '[SUCCESS] Target topildi: 192.168.1.100' },
+  { type: 'info' as const, message: '[SCAN] SQL Injection zaifliklari tekshirilmoqda...' },
+  { type: 'warning' as const, message: '[WARNING] /api/users da SQL Injection ehtimoli aniqlandi' },
+  { type: 'info' as const, message: '[SCAN] XSS zaifliklari tekshirilmoqda...' },
+  { type: 'error' as const, message: '[CRITICAL] /search da XSS zaifligi aniqlandi' },
+  { type: 'info' as const, message: '[SCAN] CSRF himoyasi tekshirilmoqda...' },
+  { type: 'warning' as const, message: '[WARNING] /login da CSRF token yo‘q' },
+  { type: 'info' as const, message: '[SCAN] Security headers tahlil qilinmoqda...' },
+  { type: 'success' as const, message: '[SUCCESS] Content-Security-Policy header mavjud' },
+  { type: 'warning' as const, message: '[WARNING] X-Frame-Options header yo‘q' },
+  { type: 'info' as const, message: '[SCAN] Authentication mexanizmlari tekshirilmoqda...' },
+  { type: 'info' as const, message: '[SCAN] Eskirgan dependencies tekshirilmoqda...' },
+  { type: 'error' as const, message: '[CRITICAL] Zaif package aniqlandi: express@3.x' },
+  { type: 'info' as const, message: '[SCAN] API endpointlar tahlil qilinmoqda...' },
+  { type: 'success' as const, message: '[SUCCESS] Barcha endpointlar HTTPS dan foydalanadi' },
+  { type: 'info' as const, message: '[SCAN] Xavfsizlik reporti tayyorlanmoqda...' },
+  { type: 'success' as const, message: '[COMPLETE] Scan tugadi. 3 ta critical, 4 ta high, 6 ta medium topildi.' },
 ];
 
 export function NewScanPage() {
@@ -69,7 +69,7 @@ export function NewScanPage() {
               id: Date.now(),
               timestamp,
               type: status.status === 'Failed' ? 'error' : status.status === 'Completed' ? 'success' : 'info',
-              message: `Scan ${status.status.toLowerCase()} for ${status.url}`,
+              message: `Scan ${status.status.toLowerCase()} bo‘ldi: ${status.url}`,
             },
           ];
           return nextLogs.slice(-15);
@@ -83,7 +83,7 @@ export function NewScanPage() {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch scan status.');
+          setError(err instanceof Error ? err.message : 'Scan holatini olish amalga oshmadi.');
           setScanning(false);
           setScanId(null);
         }
@@ -113,13 +113,13 @@ export function NewScanPage() {
           id: Date.now(),
           timestamp: new Date().toLocaleTimeString(),
           type: 'info',
-          message: `Scan started for ${url}`,
+          message: `Scan boshlandi: ${url}`,
         },
       ]);
     } catch (err) {
       setScanning(false);
       setScanId(null);
-      setError(err instanceof Error ? err.message : 'Failed to start scan.');
+      setError(err instanceof Error ? err.message : 'Scan boshlash amalga oshmadi.');
     }
   };
 
@@ -152,8 +152,8 @@ export function NewScanPage() {
   return (
     <div className="p-8 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h2 className="text-white text-2xl mb-2">New Security Scan</h2>
-        <p className="text-gray-400">Perform comprehensive security analysis on your target</p>
+        <h2 className="text-white text-2xl mb-2">Yangi xavfsizlik scani</h2>
+        <p className="text-gray-400">Target ustida to‘liq xavfsizlik tahlilini bajaring</p>
       </div>
 
       <motion.div
@@ -209,12 +209,12 @@ export function NewScanPage() {
             {scanning ? (
               <span className="flex items-center gap-2">
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Scanning...
+                Scan qilinmoqda...
               </span>
             ) : (
               <span className="flex items-center gap-2">
                 <Search className="w-5 h-5" />
-                Start Scan
+                Scan boshlash
               </span>
             )}
 
@@ -256,7 +256,7 @@ export function NewScanPage() {
               />
             </div>
             <p className="text-[#3b82f6] text-sm text-center">
-              {Math.round(progress)}% Complete
+              {Math.round(progress)}% yakunlandi
             </p>
           </motion.div>
         )}

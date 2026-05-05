@@ -21,7 +21,7 @@ export function LoginPage() {
       await login(email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed.');
+      setError(err instanceof Error ? err.message : 'Kirish amalga oshmadi.');
     } finally {
       setSubmitting(false);
     }
@@ -52,13 +52,13 @@ export function LoginPage() {
           >
             <Shield className="w-12 h-12 text-[#22c55e]" />
           </div>
-          <h2 className="text-2xl text-white mb-2">Welcome Back</h2>
-          <p className="text-gray-400 text-sm">Sign in to Sentinel-OWASP</p>
+          <h2 className="text-2xl text-white mb-2">Xush kelibsiz</h2>
+          <p className="text-gray-400 text-sm">Sentinel-OWASP ga kirish</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-gray-300 text-sm">Email Address</label>
+            <label className="text-gray-300 text-sm">Email manzil</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
@@ -82,7 +82,7 @@ export function LoginPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-gray-300 text-sm">Password</label>
+            <label className="text-gray-300 text-sm">Parol</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
@@ -108,14 +108,14 @@ export function LoginPage() {
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center gap-2 text-gray-400 cursor-pointer">
               <input type="checkbox" className="rounded border-gray-600" />
-              Remember me
+              Meni eslab qol
             </label>
             <Link
               to="#"
               className="text-[#3b82f6] hover:text-[#60a5fa] transition-colors"
               style={{ textShadow: '0 0 10px rgba(59, 130, 246, 0.3)' }}
             >
-              Forgot Password?
+              Parolni unutdingizmi?
             </Link>
           </div>
 
@@ -133,19 +133,19 @@ export function LoginPage() {
             }}
             whileTap={{ scale: 0.98 }}
           >
-            {submitting ? 'Signing In...' : 'Sign In'}
+            {submitting ? 'Kirish...' : 'Kirish'}
           </motion.button>
 
           {error && <p className="text-sm text-red-400">{error}</p>}
 
           <div className="text-center text-sm text-gray-400">
-            Don't have an account?{' '}
+            Hisobingiz yo‘qmi?{' '}
             <Link
               to="/auth/register"
               className="text-[#3b82f6] hover:text-[#60a5fa] transition-colors"
               style={{ textShadow: '0 0 10px rgba(59, 130, 246, 0.3)' }}
             >
-              Register
+              Ro‘yxatdan o‘tish
             </Link>
           </div>
         </form>

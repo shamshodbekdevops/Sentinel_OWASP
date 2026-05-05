@@ -2,18 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { Search, Filter, Calendar, ExternalLink } from 'lucide-react';
 import { api, type ScanSummary } from '../lib/api';
-
-interface ScanRecord {
-  id: number;
-  url: string;
-  date: string;
-  time: string;
-  critical: number;
-  high: number;
-  medium: number;
-  low: number;
-  status: 'Completed' | 'In Progress' | 'Failed';
-}
+import { ScanDetailsDialog } from '../components/ScanDetailsDialog';
 
 const severityConfig = {
   Critical: { bg: 'rgba(239, 68, 68, 0.2)', text: '#ef4444', border: '#ef4444' },
@@ -25,54 +14,50 @@ const severityConfig = {
 export function ScanHistoryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRisk, setFilterRisk] = useState<'all' | 'critical' | 'high' | 'medium' | 'low'>('all');
-  const [records, setRecords] = useState<ScanRecord[]>([]);
+  const [records, setRecords] = useState<ScanSummary[]>([]);
+  const [selectedScan, setSelectedScan] = useState<ScanSummary | null>(null);
 
   useEffect(() => {
     api.scanHistory()
       .then((response) => {
-        const mapped = response.results.map((scan: ScanSummary) => {
-          const riskData = scan.risk_data || {};
-          return {
-            id: scan.id,
-            url: scan.url,
-            date: new Date(scan.created_at).toISOString().split('T')[0],
-            time: new Date(scan.created_at).toTimeString().slice(0, 5),
-            critical: 0,
-            high: Number(riskData.High || 0),
-            medium: Number(riskData.Medium || 0),
-            low: Number(riskData.Low || 0),
-            status: scan.status === 'Running' ? 'In Progress' : (scan.status as 'Completed' | 'In Progress' | 'Failed'),
-          };
-        });
-
-        setRecords(mapped);
+        setRecords(response.results || []);
       })
       .catch(() => setRecords([]));
   }, []);
 
   const filteredScans = useMemo(() => records.filter(scan => {
     const matchesSearch = scan.url.toLowerCase().includes(searchTerm.toLowerCase());
+    const riskData = scan.risk_data || {};
     const matchesFilter = filterRisk === 'all' ||
-      (filterRisk === 'critical' && scan.critical > 0) ||
-      (filterRisk === 'high' && scan.high > 0) ||
-      (filterRisk === 'medium' && scan.medium > 0) ||
-      (filterRisk === 'low' && scan.low > 0);
+      (filterRisk === 'critical' && Number(riskData.Critical || 0) > 0) ||
+      (filterRisk === 'high' && Number(riskData.High || 0) > 0) ||
+      (filterRisk === 'medium' && Number(riskData.Medium || 0) > 0) ||
+      (filterRisk === 'low' && Number(riskData.Low || 0) > 0);
 
     return matchesSearch && matchesFilter;
   }), [filterRisk, records, searchTerm]);
 
-  const getRiskLevel = (scan: ScanRecord): 'Critical' | 'High' | 'Medium' | 'Low' => {
-    if (scan.critical > 0) return 'Critical';
-    if (scan.high > 0) return 'High';
-    if (scan.medium > 0) return 'Medium';
+  const getRiskLevel = (scan: ScanSummary): 'Critical' | 'High' | 'Medium' | 'Low' => {
+    const riskData = scan.risk_data || {};
+    if (Number(riskData.Critical || 0) > 0) return 'Critical';
+    if (Number(riskData.High || 0) > 0) return 'High';
+    if (Number(riskData.Medium || 0) > 0) return 'Medium';
     return 'Low';
+  };
+
+  const translateStatus = (status: string) => {
+    if (status === 'Completed') return 'Tugallandi';
+    if (status === 'Failed') return 'Muvaffaqiyatsiz';
+    if (status === 'Pending') return 'Kutilmoqda';
+    if (status === 'Running') return 'Ishlamoqda';
+    return status;
   };
 
   return (
     <div className="p-8 space-y-6 max-w-7xl mx-auto">
       <div>
-        <h2 className="text-white text-2xl mb-2">Scan History</h2>
-        <p className="text-gray-400">View and analyze past security scans</p>
+        <h2 className="text-white text-2xl mb-2">Scan tarixi</h2>
+        <p className="text-gray-400">Oldingi xavfsizlik scanlarini ko‘ring va tahlil qiling</p>
       </div>
 
       <motion.div
@@ -87,7 +72,7 @@ export function ScanHistoryPage() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by URL..."
+            placeholder="URL bo‘yicha qidirish..."
             className="w-full pl-12 pr-4 py-3 rounded-lg bg-[#0f172a] border border-white/10 text-white placeholder-gray-500 transition-all duration-300 focus:outline-none focus:border-[#3b82f6]"
             style={{
               boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
@@ -112,11 +97,11 @@ export function ScanHistoryPage() {
                 boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
               }}
             >
-              <option value="all">All Risk Levels</option>
-              <option value="critical">Critical Only</option>
-              <option value="high">High Only</option>
-              <option value="medium">Medium Only</option>
-              <option value="low">Low Only</option>
+              <option value="all">Barcha risk darajalari</option>
+              <option value="critical">Faqat Critical</option>
+              <option value="high">Faqat High</option>
+              <option value="medium">Faqat Medium</option>
+              <option value="low">Faqat Low</option>
             </select>
           </div>
         </div>
@@ -137,9 +122,9 @@ export function ScanHistoryPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-[#3b82f6]" />
-              <h3 className="text-white">Recent Scans</h3>
+              <h3 className="text-white">So‘nggi scanlar</h3>
             </div>
-            <span className="text-gray-400 text-sm">{filteredScans.length} results</span>
+            <span className="text-gray-400 text-sm">{filteredScans.length} ta natija</span>
           </div>
         </div>
 
@@ -148,20 +133,23 @@ export function ScanHistoryPage() {
             <thead>
               <tr className="border-b border-white/10">
                 <th className="px-6 py-4 text-left text-sm text-gray-400">ID</th>
-                <th className="px-6 py-4 text-left text-sm text-gray-400">Target URL</th>
-                <th className="px-6 py-4 text-left text-sm text-gray-400">Date & Time</th>
+                <th className="px-6 py-4 text-left text-sm text-gray-400">Nishon URL</th>
+                <th className="px-6 py-4 text-left text-sm text-gray-400">Sana va vaqt</th>
                 <th className="px-6 py-4 text-center text-sm text-gray-400">Critical</th>
                 <th className="px-6 py-4 text-center text-sm text-gray-400">High</th>
                 <th className="px-6 py-4 text-center text-sm text-gray-400">Medium</th>
                 <th className="px-6 py-4 text-center text-sm text-gray-400">Low</th>
-                <th className="px-6 py-4 text-left text-sm text-gray-400">Risk Level</th>
-                <th className="px-6 py-4 text-left text-sm text-gray-400">Actions</th>
+                <th className="px-6 py-4 text-left text-sm text-gray-400">Holat</th>
+                <th className="px-6 py-4 text-left text-sm text-gray-400">Risk darajasi</th>
+                <th className="px-6 py-4 text-left text-sm text-gray-400">Amallar</th>
               </tr>
             </thead>
             <tbody>
               {filteredScans.map((scan, idx) => {
                 const riskLevel = getRiskLevel(scan);
                 const config = severityConfig[riskLevel];
+                const riskData = scan.risk_data || {};
+                const date = new Date(scan.created_at);
 
                 return (
                   <motion.tr
@@ -182,27 +170,30 @@ export function ScanHistoryPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-400 text-sm">
-                      {scan.date} {scan.time}
+                      {date.toISOString().split('T')[0]} {date.toTimeString().slice(0, 5)}
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${scan.critical > 0 ? 'bg-red-500/20 text-red-400' : 'bg-gray-700 text-gray-500'}`}>
-                        {scan.critical}
+                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${Number(riskData.Critical || 0) > 0 ? 'bg-red-500/20 text-red-400' : 'bg-gray-700 text-gray-500'}`}>
+                        {Number(riskData.Critical || 0)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${scan.high > 0 ? 'bg-orange-500/20 text-orange-400' : 'bg-gray-700 text-gray-500'}`}>
-                        {scan.high}
+                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${Number(riskData.High || 0) > 0 ? 'bg-orange-500/20 text-orange-400' : 'bg-gray-700 text-gray-500'}`}>
+                        {Number(riskData.High || 0)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${scan.medium > 0 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-gray-700 text-gray-500'}`}>
-                        {scan.medium}
+                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${Number(riskData.Medium || 0) > 0 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-gray-700 text-gray-500'}`}>
+                        {Number(riskData.Medium || 0)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${scan.low > 0 ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-500'}`}>
-                        {scan.low}
+                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${Number(riskData.Low || 0) > 0 ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-500'}`}>
+                        {Number(riskData.Low || 0)}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-400 text-sm">
+                      {translateStatus(scan.status)}
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -218,8 +209,11 @@ export function ScanHistoryPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <button className="text-[#3b82f6] hover:text-[#60a5fa] text-sm transition-colors">
-                        View Details
+                      <button
+                        onClick={() => setSelectedScan(scan)}
+                        className="text-[#3b82f6] hover:text-[#60a5fa] text-sm transition-colors"
+                      >
+                        Tafsilotlarni ko‘rish
                       </button>
                     </td>
                   </motion.tr>
@@ -229,6 +223,13 @@ export function ScanHistoryPage() {
           </table>
         </div>
       </motion.div>
+
+      <ScanDetailsDialog
+        open={Boolean(selectedScan)}
+        onOpenChange={(open) => !open && setSelectedScan(null)}
+        scan={selectedScan}
+        onDownloadPdf={async (scanId) => api.downloadPDF(scanId)}
+      />
     </div>
   );
 }

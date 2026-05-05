@@ -38,7 +38,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const payload = contentType.includes('application/json') ? await response.json() : null;
 
   if (!response.ok) {
-    const detail = payload?.detail || 'Request failed.';
+    const detail = payload?.detail || 'So‘rov bajarilmadi.';
     throw new Error(detail);
   }
 
@@ -81,5 +81,24 @@ export const api = {
   },
   async scanHistory() {
     return request<{ results: ScanSummary[] }>('/scans/');
+  },
+  async downloadPDF(scanId: number) {
+    const response = await fetch(`${API_BASE}/scan/${scanId}/pdf/`, {
+      credentials: 'include',
+    });
+    
+    if (!response.ok) {
+      throw new Error('PDF yuklab bo‘lmadi');
+    }
+    
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `scan-report-${scanId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   },
 };

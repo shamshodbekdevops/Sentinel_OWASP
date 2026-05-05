@@ -47,7 +47,7 @@ export function SecurityGauge({ score }: SecurityGaugeProps) {
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
       }}
     >
-      <h3 className="text-white mb-4">Security Score</h3>
+      <h3 className="text-white mb-4">Xavfsizlik balli</h3>
 
       <div className="relative flex items-center justify-center">
         <RadialBarChart
@@ -86,7 +86,7 @@ export function SecurityGauge({ score }: SecurityGaugeProps) {
             {animatedScore}
           </span>
           <span className="text-gray-400 text-sm mt-2">/ 100</span>
-          <span className="text-gray-500 text-xs mt-1">Overall Rating</span>
+          <span className="text-gray-500 text-xs mt-1">Umumiy baho</span>
         </div>
       </div>
     </motion.div>

@@ -1,12 +1,14 @@
-import { Search, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { Search, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
+import { api } from '../lib/api';
 
 export function ScanInterface() {
   const [url, setUrl] = useState('');
   const [scanning, setScanning] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [currentTest, setCurrentTest] = useState('');
+  const [scanId, setScanId] = useState<number | null>(null);
+  const [status, setStatus] = useState<'idle' | 'running' | 'completed' | 'failed'>('idle');
+  const [error, setError] = useState('');
 
   const tests = [
     'Checking SQL Injection...',
@@ -16,27 +18,63 @@ export function ScanInterface() {
     'Validating Authentication...',
   ];
 
-  const handleScan = () => {
-    setScanning(true);
-    setProgress(0);
+  // Poll for scan status
+  useEffect(() => {
+    if (!scanId || status === 'completed' || status === 'failed') return;
 
-    let step = 0;
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        const next = prev + 5;
-        if (next >= 100) {
-          clearInterval(interval);
-          setTimeout(() => setScanning(false), 500);
-          return 100;
+    const interval = setInterval(async () => {
+      try {
+        const result = await api.scanStatus(scanId);
+        
+        if (result.status === 'Completed') {
+          setStatus('completed');
+          setScanning(false);
+          setError('');
+        } else if (result.status === 'Failed') {
+          setStatus('failed');
+          setScanning(false);
+          setError('Scan failed. Please try again.');
         }
-        return next;
-      });
-
-      if (step < tests.length) {
-        setCurrentTest(tests[step]);
-        step++;
+        // Running - continue polling
+      } catch (err) {
+        console.error('Error checking scan status:', err);
       }
-    }, 400);
+    }, 2000); // Check every 2 seconds
+
+    return () => clearInterval(interval);
+  }, [scanId, status]);
+
+  const handleScan = async () => {
+    if (!url.trim()) {
+      setError('Please enter a valid URL');
+      return;
+    }
+
+    try {
+      setScanning(true);
+      setStatus('running');
+      setError('');
+      
+      const result = await api.startScan(url);
+      setScanId(result.id);
+    } catch (err: any) {
+      setScanning(false);
+      setStatus('failed');
+      setError(err.message || 'Failed to start scan');
+    }
+  };
+
+  const getStatusColor = () => {
+    switch (status) {
+      case 'completed':
+        return '#22c55e';
+      case 'failed':
+        return '#ef4444';
+      case 'running':
+        return '#3b82f6';
+      default:
+        return '#6b7280';
+    }
   };
 
   return (
@@ -59,14 +97,18 @@ export function ScanInterface() {
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="Enter target URL..."
-            className="w-full px-6 py-4 rounded-lg bg-[#0f172a] border-2 border-transparent text-white placeholder-gray-500 transition-all duration-300 focus:outline-none"
+            onKeyPress={(e) => e.key === 'Enter' && handleScan()}
+            placeholder="Enter target URL (e.g., https://example.com)..."
+            disabled={scanning}
+            className="w-full px-6 py-4 rounded-lg bg-[#0f172a] border-2 border-transparent text-white placeholder-gray-500 transition-all duration-300 focus:outline-none disabled:opacity-50"
             style={{
               boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
             }}
             onFocus={(e) => {
-              e.target.style.borderColor = '#3b82f6';
-              e.target.style.boxShadow = '0 0 24px rgba(59, 130, 246, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3)';
+              if (!scanning) {
+                e.target.style.borderColor = '#3b82f6';
+                e.target.style.boxShadow = '0 0 24px rgba(59, 130, 246, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3)';
+              }
             }}
             onBlur={(e) => {
               e.target.style.borderColor = 'transparent';
@@ -77,17 +119,17 @@ export function ScanInterface() {
 
         <motion.button
           onClick={handleScan}
-          disabled={scanning || !url}
-          className="px-8 py-4 rounded-lg text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
+          disabled={scanning || !url.trim()}
+          className="px-8 py-4 rounded-lg text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden whitespace-nowrap"
           style={{
             background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
             boxShadow: '0 8px 24px rgba(59, 130, 246, 0.4)',
           }}
-          whileHover={!scanning && url ? {
+          whileHover={!scanning && url.trim() ? {
             scale: 1.05,
             boxShadow: '0 12px 32px rgba(59, 130, 246, 0.6)',
           } : {}}
-          whileTap={!scanning && url ? { scale: 0.98 } : {}}
+          whileTap={!scanning && url.trim() ? { scale: 0.98 } : {}}
         >
           {scanning ? (
             <span className="flex items-center gap-2">
@@ -111,6 +153,17 @@ export function ScanInterface() {
         </motion.button>
       </div>
 
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          className="mb-4 p-4 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center gap-3"
+        >
+          <AlertCircle className="w-5 h-5 text-red-400" />
+          <p className="text-red-400 text-sm">{error}</p>
+        </motion.div>
+      )}
+
       {scanning && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
@@ -123,7 +176,7 @@ export function ScanInterface() {
               style={{
                 background: 'linear-gradient(90deg, #22c55e 0%, #3b82f6 50%, #22c55e 100%)',
                 backgroundSize: '200% 100%',
-                width: `${progress}%`,
+                width: '100%',
                 boxShadow: '0 0 16px rgba(34, 197, 94, 0.6)',
               }}
               animate={{
@@ -138,14 +191,24 @@ export function ScanInterface() {
           </div>
 
           <motion.p
-            key={currentTest}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="text-[#3b82f6] text-sm text-center"
             style={{ textShadow: '0 0 10px rgba(59, 130, 246, 0.5)' }}
           >
-            {currentTest}
+            {status === 'running' ? 'Scanning in progress...' : 'Processing results...'}
           </motion.p>
+        </motion.div>
+      )}
+
+      {status === 'completed' && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          className="p-4 rounded-lg bg-green-500/10 border border-green-500/30 flex items-center gap-3"
+        >
+          <CheckCircle className="w-5 h-5 text-green-400" />
+          <p className="text-green-400 text-sm">Scan completed successfully! Check reports for details.</p>
         </motion.div>
       )}
     </motion.div>

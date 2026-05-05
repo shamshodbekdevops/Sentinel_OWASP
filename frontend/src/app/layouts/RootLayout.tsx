@@ -1,4 +1,4 @@
-import { Outlet, useNavigate, useLocation } from 'react-router';
+import { Outlet, useNavigate, useLocation, Navigate } from 'react-router';
 import { Shield, LayoutDashboard, ScanSearch, History, FileText, ChevronLeft, ChevronRight, User, Settings, LogOut } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -13,10 +13,10 @@ export function RootLayout() {
   const location = useLocation();
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-    { icon: ScanSearch, label: 'New Scan', path: '/scan/new' },
-    { icon: History, label: 'Scan History', path: '/scan/history' },
-    { icon: FileText, label: 'Reports', path: '/reports' },
+    { icon: LayoutDashboard, label: 'Bosh sahifa', path: '/dashboard' },
+    { icon: ScanSearch, label: 'Yangi scan', path: '/scan/new' },
+    { icon: History, label: 'Scan tarixi', path: '/scan/history' },
+    { icon: FileText, label: 'Hisobotlar', path: '/reports' },
   ];
 
   useEffect(() => {
@@ -35,18 +35,18 @@ export function RootLayout() {
     navigate('/auth/login');
   };
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      navigate('/auth/login');
-    }
-  }, [isLoading, navigate, user]);
-
   if (isLoading) {
-    return null;
+    return (
+      <div className="min-h-screen w-screen flex items-center justify-center bg-[#0f172a] text-white">
+        <div className="rounded-2xl border border-white/10 bg-[#020617] px-6 py-4 shadow-2xl shadow-black/40">
+          Loading dashboard...
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
-    return null;
+    return <Navigate to="/auth/login" replace />;
   }
 
   return (
@@ -113,14 +113,14 @@ export function RootLayout() {
           }}
         >
           <div>
-            <h1 className="text-white text-lg">Security Dashboard</h1>
-            <p className="text-gray-400 text-xs">Real-time monitoring and analysis</p>
+            <h1 className="text-white text-lg">Xavfsizlik Paneli</h1>
+            <p className="text-gray-400 text-xs">Haqiqiy vaqt monitoringi va tahlil</p>
           </div>
 
           <div className="flex items-center gap-4">
             <div className="px-3 py-1.5 rounded-lg bg-[#22c55e]/10 border border-[#22c55e]/30 text-[#22c55e] text-xs">
               <span className="inline-block w-2 h-2 rounded-full bg-[#22c55e] mr-2 animate-pulse"></span>
-              Online
+              Onlayn
             </div>
 
             <div className="relative" ref={profileRef}>
@@ -163,18 +163,18 @@ export function RootLayout() {
                     <div className="p-2">
                       <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-[#22c55e]/10 hover:text-[#22c55e] transition-all duration-200">
                         <User className="w-4 h-4" />
-                        <span className="text-sm">Profile</span>
+                        <span className="text-sm">Profil</span>
                       </button>
                       <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-[#22c55e]/10 hover:text-[#22c55e] transition-all duration-200">
                         <Settings className="w-4 h-4" />
-                        <span className="text-sm">Settings</span>
+                        <span className="text-sm">Sozlamalar</span>
                       </button>
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span className="text-sm">Logout</span>
+                        <span className="text-sm">Chiqish</span>
                       </button>
                     </div>
                   </motion.div>
